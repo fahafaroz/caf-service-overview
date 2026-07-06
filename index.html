@@ -1,0 +1,217 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EagleEye — автоматический контроль сервиса CAF</title>
+</head><body><style>
+  :root {
+    --paper: #FAF7F2;
+    --ink: #22303F;
+    --ink-soft: #5C6A79;
+    --line: #E4DDD2;
+    --card: #FFFFFF;
+    --ember: #B86A24;
+    --ember-soft: #F4E3CF;
+    --good: #2E7D4F;
+    --good-soft: #E1F0E7;
+    --wait: #8A6D1F;
+    --wait-soft: #F5EBCC;
+    --plan: #5C6A79;
+    --plan-soft: #E8E6E1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #1B2430; --ink: #EAE4DA; --ink-soft: #9AA6B2;
+      --line: #32404F; --card: #232F3D;
+      --ember: #E09A4E; --ember-soft: #3A2E1D;
+      --good: #6CC493; --good-soft: #1F3428;
+      --wait: #D9B958; --wait-soft: #37301A;
+      --plan: #9AA6B2; --plan-soft: #2B3644;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B2430; --ink: #EAE4DA; --ink-soft: #9AA6B2;
+    --line: #32404F; --card: #232F3D;
+    --ember: #E09A4E; --ember-soft: #3A2E1D;
+    --good: #6CC493; --good-soft: #1F3428;
+    --wait: #D9B958; --wait-soft: #37301A;
+    --plan: #9AA6B2; --plan-soft: #2B3644;
+  }
+  :root[data-theme="light"] {
+    --paper: #FAF7F2; --ink: #22303F; --ink-soft: #5C6A79;
+    --line: #E4DDD2; --card: #FFFFFF;
+    --ember: #B86A24; --ember-soft: #F4E3CF;
+    --good: #2E7D4F; --good-soft: #E1F0E7;
+    --wait: #8A6D1F; --wait-soft: #F5EBCC;
+    --plan: #5C6A79; --plan-soft: #E8E6E1;
+  }
+
+  body {
+    background: var(--paper); color: var(--ink);
+    font: 16px/1.55 "Segoe UI", -apple-system, Roboto, Arial, sans-serif;
+    margin: 0; padding: 0 20px 64px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  header { padding: 44px 0 10px; border-bottom: 2px solid var(--ink); }
+  .brand {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ember); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(28px, 5.4vw, 40px); line-height: 1.14;
+    margin: 0 0 10px; text-wrap: balance; font-weight: 700;
+  }
+  .lede { color: var(--ink-soft); margin: 0 0 26px; max-width: 58ch; }
+
+  .tally { display: flex; gap: 26px; padding: 16px 0 20px; flex-wrap: wrap; }
+  .tally b {
+    display: block; font-family: Georgia, serif; font-size: 30px;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .tally span { font-size: 13px; color: var(--ink-soft); }
+
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 21px; margin: 40px 0 6px; text-wrap: balance;
+  }
+  .h2-note { font-size: 14px; color: var(--ink-soft); margin: 0 0 16px; }
+
+  .checks { display: flex; flex-direction: column; gap: 10px; }
+  .check {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 16px; display: grid;
+    grid-template-columns: 1fr auto; gap: 2px 14px; align-items: baseline;
+  }
+  .check .name { font-weight: 600; }
+  .check .how { grid-column: 1 / -1; font-size: 14px; color: var(--ink-soft); }
+  .lim {
+    font-family: Consolas, "Courier New", monospace; font-size: 13px;
+    color: var(--ember); background: var(--ember-soft);
+    padding: 2px 9px; border-radius: 20px; white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .status { font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .st-on   { color: var(--good); background: var(--good-soft); }
+  .st-wait { color: var(--wait); background: var(--wait-soft); }
+  .st-plan { color: var(--plan); background: var(--plan-soft); }
+
+  .flow { display: flex; flex-direction: column; gap: 0; margin-top: 14px; }
+  .step { display: grid; grid-template-columns: 30px 1fr; gap: 14px; padding: 10px 0; }
+  .step + .step { border-top: 1px dashed var(--line); }
+  .step .dot {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--ember-soft);
+    color: var(--ember); display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, serif; font-weight: 700;
+  }
+  .step p { margin: 2px 0 0; }
+  .step .t { font-weight: 600; }
+  .step .d { font-size: 14px; color: var(--ink-soft); }
+
+  .alert-sample {
+    background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--ember);
+    border-radius: 10px; padding: 14px 18px; margin: 18px 0 0;
+    font-size: 14.5px; overflow-x: auto;
+  }
+  .alert-sample p { margin: 3px 0; }
+  .alert-sample .from { color: var(--ink-soft); font-size: 12.5px; letter-spacing: .05em;
+    text-transform: uppercase; margin-bottom: 8px; }
+
+  .privacy {
+    margin-top: 40px; padding: 16px 18px; border: 1px solid var(--line);
+    border-radius: 10px; background: var(--card); font-size: 14.5px;
+  }
+  .privacy b { font-family: Georgia, serif; }
+  footer { margin-top: 44px; font-size: 13px; color: var(--ink-soft);
+    border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="brand">EagleEye · система контроля сервиса</p>
+  <h1>Что камеры CAF теперь контролируют сами</h1>
+  <p class="lede">Система смотрит на существующие камеры ресторана, замечает
+  нарушения стандартов сервиса и мгновенно присылает менеджеру фото в
+  Telegram. Ниже — полный список автоматических проверок.</p>
+  <div class="tally">
+    <div><b>13</b><span>проверок</span></div>
+    <div><b>24/7</b><span>без выходных</span></div>
+    <div><b>≈1 мин</b><span>от нарушения до алерта</span></div>
+  </div>
+</header>
+
+<h2>Проверки в зале — в реальном времени</h2>
+<p class="h2-note">Пороги взяты из стандартов CAF и меняются в настройках без программиста.</p>
+<div class="checks">
+  <div class="check"><span class="name">Меню не подано после посадки гостей</span><span class="lim">2 мин</span>
+    <span class="how">Гости сели — официант или админ должен подойти. Не подошёл — алерт с фото стола.</span></div>
+  <div class="check"><span class="name">Стол без внимания официанта</span><span class="lim">каждые 10 мин</span>
+    <span class="how">К занятому столу должны регулярно подходить: подача, уборка посуды, дозаказ.</span></div>
+  <div class="check"><span class="name">Стол не убран после ухода гостей</span><span class="lim">6 мин</span>
+    <span class="how">Гости ушли — таймер пошёл. Никто не подошёл убрать — алерт.</span></div>
+  <div class="check"><span class="name">Гостей посадили за неубранный стол</span><span class="lim">сразу</span>
+    <span class="how">Новые гости сели за стол, который не убрали после предыдущих.</span></div>
+  <div class="check"><span class="name">Сотрудник простаивает</span><span class="lim">5 мин</span>
+    <span class="how">Стоит на месте вне служебных зон, пока в зале есть гости.</span></div>
+  <div class="check"><span class="name">Телефон в рабочее время</span><span class="lim">60 сек</span>
+    <span class="how">Телефон в руках сотрудника в зоне видимости гостей. На фото — кто и где.</span></div>
+  <div class="check"><span class="name">Официант «завис» у стола гостей</span><span class="lim">5 мин</span>
+    <span class="how">По стандарту у стола находятся не дольше 3–5 минут за раз.</span></div>
+  <div class="check"><span class="name">В зале нет ни одного сотрудника</span><span class="lim">5 мин</span>
+    <span class="how">Проверка сразу по всем камерам зала: минимум один сотрудник всегда на месте.</span></div>
+</div>
+
+<h2>Включаются после разметки зон на камерах</h2>
+<p class="h2-note">Код готов — осталось обвести кассу и кальянную на кадрах камер (10 минут работы).</p>
+<div class="checks">
+  <div class="check"><span class="name">Касса без присмотра</span><span class="lim">1 мин</span>
+    <span class="how">В рабочие часы зона кассы не должна пустовать дольше минуты.</span></div>
+  <div class="check"><span class="name">Персонал в кальянной</span><span class="lim">сразу</span>
+    <span class="how">Официантам, поварам и кассирам вход запрещён — кальянщики проходят свободно.</span></div>
+  <div class="check"><span class="name">Утренняя проверка зала</span><span class="lim">до открытия</span>
+    <span class="how">Автоматически: стулья и диваны на местах по эталону, плазмы включены. Плюс фото-чек-лист для админа: входная группа, менажницы, фасад — фото прямо боту в Telegram, пропустил — алерт владельцу.</span></div>
+</div>
+
+<h2>Готовятся</h2>
+<div class="checks">
+  <div class="check"><span class="name">Угли кальяна не заменены</span><span class="lim">15 мин</span>
+    <span class="how">Система видит кальян у стола и следит, чтобы кальянщик подходил вовремя. Обучается на записях из зала CAF.</span><span class="status st-wait">обучение модели</span></div>
+  <div class="check"><span class="name">Сотрудник ест или пьёт в зале</span><span class="lim">20 сек</span>
+    <span class="how">Напиток у лица стоящего сотрудника в гостевой зоне. Включим после проверки точности на живых камерах.</span><span class="status st-wait">тестируется</span></div>
+</div>
+
+<h2>Как это выглядит для менеджера</h2>
+<div class="flow">
+  <div class="step"><div class="dot">1</div><div>
+    <p class="t">Мгновенный алерт в Telegram</p>
+    <p class="d">Фото с камеры, где отмечен нарушитель, плюс описание и пункт чек-листа.</p></div></div>
+  <div class="step"><div class="dot">2</div><div>
+    <p class="t">Кнопки «Подтверждаю» / «Ложная тревога»</p>
+    <p class="d">Один клик — и система учится. Ложные срабатывания не попадают в отчёты.</p></div></div>
+  <div class="step"><div class="dot">3</div><div>
+    <p class="t">Вечером — отчёт PDF</p>
+    <p class="d">Кто сколько нарушил, лучший и худший сотрудник, сравнение со вчера. Приходит в Telegram в 23:00.</p></div></div>
+  <div class="step"><div class="dot">4</div><div>
+    <p class="t">Панель управления</p>
+    <p class="d">Лента нарушений, статистика по сотрудникам и столам, настройка порогов — всё на русском.</p></div></div>
+</div>
+
+<div class="alert-sample">
+  <p class="from">Пример алерта · Telegram</p>
+  <p>📬 Сообщение для пользователя</p>
+  <p>Объект: CAF</p>
+  <p>Камера: Касса 📷</p>
+  <p>Описание: Сотрудник №4 пользуется мобильным телефоном при гостях (Касса) ❗</p>
+  <p>Чек-лист: Запрещено использование моб. телефонов для личных целей ⚠️</p>
+  <p>Время: 19:58 🕐 &nbsp;·&nbsp; Длительность: 4 сек</p>
+</div>
+
+<div class="privacy">
+  <b>Приватность.</b> Система не распознаёт лица. Гости на снимках
+  автоматически размываются. Всё видео обрабатывается на компьютере внутри
+  ресторана и никуда не передаётся — наружу уходят только алерты и отчёты.
+</div>
+
+<footer>EagleEye · пилот в CAF · все пороги настраиваются под стандарты заведения</footer>
+</div>
+</body></html>
