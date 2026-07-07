@@ -64,6 +64,19 @@
   .lede { color: var(--ink-soft); margin: 0 0 26px; max-width: 58ch; }
 
   .tally { display: flex; gap: 26px; padding: 16px 0 20px; flex-wrap: wrap; }
+  .report-table { width: 100%; border-collapse: collapse; margin: 10px 0 4px;
+    font-size: 13.5px; }
+  .report-table th, .report-table td {
+    border: 1px solid var(--line); padding: 6px 9px; text-align: left; }
+  .report-table th { background: var(--ember-soft); color: var(--ember);
+    font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
+  .report-table td:nth-child(2) { font-variant-numeric: tabular-nums; text-align: center; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px; margin-top: 14px; }
+  .fact { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 15px; }
+  .fact .t { font-weight: 600; display: block; margin-bottom: 3px; }
+  .fact .d { font-size: 13.5px; color: var(--ink-soft); }
   .tally b {
     display: block; font-family: Georgia, serif; font-size: 30px;
     font-variant-numeric: tabular-nums; line-height: 1;
@@ -202,6 +215,55 @@
   <p>Описание: Сотрудник №4 пользуется мобильным телефоном при гостях (Касса) ❗</p>
   <p>Чек-лист: Запрещено использование моб. телефонов для личных целей ⚠️</p>
   <p>Время: 19:58 🕐 &nbsp;·&nbsp; Длительность: 4 сек</p>
+</div>
+
+<h2>Вечерний отчёт: кто, сколько и что нарушил</h2>
+<p class="h2-note">PDF приходит в Telegram каждый день в 23:00 — владелец видит картину дня, не заходя в ресторан.</p>
+<div class="alert-sample">
+  <p class="from">Фрагмент отчёта · нарушения по сотрудникам</p>
+  <table class="report-table">
+    <tr><th>Сотрудник</th><th>Кол-во</th><th>Какие нарушения</th></tr>
+    <tr><td>Анвар</td><td>3</td><td>Телефон в рабочее время ×2, Меню не подано ×1</td></tr>
+    <tr><td>Далер</td><td>1</td><td>Долго у стола гостей ×1</td></tr>
+    <tr><td>Без имени</td><td>1</td><td>Телефон в рабочее время ×1</td></tr>
+  </table>
+</div>
+<div class="facts">
+  <div class="fact"><span class="t">Худший и лучший сотрудник дня</span>
+    <span class="d">Готовый повод для разговора на планёрке — по фактам, а не по ощущениям.</span></div>
+  <div class="fact"><span class="t">Пиковые часы нарушений</span>
+    <span class="d">Видно, в какие часы залу не хватает рук — аргумент для расстановки смен.</span></div>
+  <div class="fact"><span class="t">Динамика к вчерашнему дню</span>
+    <span class="d">Стало лучше или хуже — одной строкой.</span></div>
+  <div class="fact"><span class="t">Статистика по столам</span>
+    <span class="d">Какие столы систематически ждут дольше всех.</span></div>
+  <div class="fact"><span class="t">Дисциплина проверок</span>
+    <span class="d">Пройдена ли утренняя проверка, сколько алертов менеджер не разобрал.</span></div>
+  <div class="fact"><span class="t">Честные цифры</span>
+    <span class="d">Ложные срабатывания, отмеченные менеджером, в статистику не попадают.</span></div>
+</div>
+
+<h2>Система становится точнее с каждым днём</h2>
+<p class="h2-note">Каждый клик менеджера — это обучение системы под конкретный зал.</p>
+<div class="facts">
+  <div class="fact"><span class="t">«Подтверждаю / Ложная тревога»</span>
+    <span class="d">Прямо под каждым алертом в Telegram. Ложные исчезают из отчётов и копятся как материал для настройки.</span></div>
+  <div class="fact"><span class="t">Имена вместо номеров</span>
+    <span class="d">Менеджер раз в день привязывает номера с камер к именам — и алерты говорят «Анвар», а не «№7».</span></div>
+  <div class="fact"><span class="t">Пороги под ваши стандарты</span>
+    <span class="d">«Меню за 2 минуты», «уборка за 6» — все цифры меняются в настройках без программиста.</span></div>
+</div>
+
+<h2>Внедрение и надёжность</h2>
+<div class="facts">
+  <div class="fact"><span class="t">Ваши камеры — без замены</span>
+    <span class="d">Подключается к существующему видеонаблюдению (Hikvision, Dahua и др.). Новое оборудование — один компьютер.</span></div>
+  <div class="fact"><span class="t">Видео не покидает ресторан</span>
+    <span class="d">Вся обработка — на месте. В интернет уходят только алерты и отчёты.</span></div>
+  <div class="fact"><span class="t">Работает при обрывах связи</span>
+    <span class="d">Интернет пропал — алерты копятся и доходят, как только связь вернулась. Камера отвалилась — переподключение автоматически.</span></div>
+  <div class="fact"><span class="t">Запуск за один день</span>
+    <span class="d">Разметить зоны на кадрах камер — около часа. Панель, алерты и отчёты — полностью на русском.</span></div>
 </div>
 
 <div class="privacy">
